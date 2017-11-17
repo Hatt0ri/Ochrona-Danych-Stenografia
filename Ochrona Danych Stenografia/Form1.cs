@@ -413,7 +413,7 @@ namespace Ochrona_Danych_Stenografia
                 MessageBox.Show("Picked file to hide is to huge! Try to pick larger carrier image or move trackbars.", "File to large!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-            //  %
+            //  % sdfsdfsdfsdf
             tmp = sLen * (int)Math.Ceiling((double)(24 / (cR + cG + cB)));
             usedSpace = tmp + bmpMBsize;
             tmp = dSize[0] * dSize[1] * 3;
