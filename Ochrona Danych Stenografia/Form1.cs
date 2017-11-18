@@ -304,15 +304,6 @@ namespace Ochrona_Danych_Stenografia
                 {
                     for (int ib = 0; ib < 3; ib++)                             //  4   every byte
                     {
-                       /* if (sOffset < sLen)
-                        {
-                            int[] inttmp = new int[8];
-                            inttmp = Crr.GetBitArray(src[sOffset++]);
-                            for (int a = 0; a < 8; a++)
-                            {
-                                cont.Enqueue(inttmp[a]);
-                            }
-                        }*/
                         //=======================
                         if (lbMarker== dOffset) //  if last byte to read
                         {
@@ -356,9 +347,7 @@ namespace Ochrona_Danych_Stenografia
                 extr[i] = new byte();
             }
             System.Buffer.BlockCopy(src, 0, extr, 0, sOffset);
-            src = null;
-
-
+            //src = null;
         }
         //  *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
 
