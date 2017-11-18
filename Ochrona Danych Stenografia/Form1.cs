@@ -347,7 +347,8 @@ namespace Ochrona_Danych_Stenografia
                 extr[i] = new byte();
             }
             System.Buffer.BlockCopy(src, 0, extr, 0, sOffset);
-            //src = null;
+            src = null;
+            textBox2.Text= srcPath = "";
         }
         //  *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
 
@@ -666,6 +667,7 @@ namespace Ochrona_Danych_Stenografia
             {
                 SFD.Filter = "All files(*.*) |*.*";
                 Extract();
+                button3.Enabled = true;
             }
             if( destPath != "")
             {
