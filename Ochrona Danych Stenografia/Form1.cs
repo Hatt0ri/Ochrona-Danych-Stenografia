@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using LiveCharts;
+using LiveCharts.Wpf;
+using LiveCharts.WinForms;
 
 namespace Ochrona_Danych_Stenografia
 {
@@ -18,6 +21,7 @@ namespace Ochrona_Danych_Stenografia
         //
         // Form1 (Global) Variables
         //
+        LiveCharts.WinForms.PieChart Chart1;
         //Destanation used image
 
         byte[] dest;
@@ -51,6 +55,7 @@ namespace Ochrona_Danych_Stenografia
         //  Extracted file vars
         //  1 byte4marker, 2 bytes4 RGBsliders and lastbyteSize, 4 bytes4 last byteOFFset
         int lcR, lcG, lcB;
+
         //lastNyteSize
         //lbMarker
 
@@ -299,15 +304,6 @@ namespace Ochrona_Danych_Stenografia
                 {
                     for (int ib = 0; ib < 3; ib++)                             //  4   every byte
                     {
-                       /* if (sOffset < sLen)
-                        {
-                            int[] inttmp = new int[8];
-                            inttmp = Crr.GetBitArray(src[sOffset++]);
-                            for (int a = 0; a < 8; a++)
-                            {
-                                cont.Enqueue(inttmp[a]);
-                            }
-                        }*/
                         //=======================
                         if (lbMarker== dOffset) //  if last byte to read
                         {
@@ -351,9 +347,7 @@ namespace Ochrona_Danych_Stenografia
                 extr[i] = new byte();
             }
             System.Buffer.BlockCopy(src, 0, extr, 0, sOffset);
-            src = null;
-
-
+            //src = null;
         }
         //  *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
 
@@ -413,7 +407,7 @@ namespace Ochrona_Danych_Stenografia
                 MessageBox.Show("Picked file to hide is to huge! Try to pick larger carrier image or move trackbars.", "File to large!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-            //  %
+            //  % sdfsdfsdfsdf
             tmp = sLen * (int)Math.Ceiling((double)(24 / (cR + cG + cB)));
             usedSpace = tmp + bmpMBsize;
             tmp = dSize[0] * dSize[1] * 3;
@@ -436,10 +430,18 @@ namespace Ochrona_Danych_Stenografia
             //panel1
             panel1.Size = new Size(380, 280);
             this.MaximumSize = new Size(382, 341);  //  Start size
+            //piechart
+            //Form1.
+            LiveCharts.WinForms.PieChart chart1 = new LiveCharts.WinForms.PieChart();
+            Chart1 = chart1;
+            Chart1.Location = panel8.Location;
+            Chart1.Size = panel8.Size;
+            panel2.Controls.Add(Chart1);
 
             panel1.MinimumSize = panel1.Size;
             bt3.Enabled = false;
             bt2.Enabled = false;
+            
 
         }
 
@@ -493,9 +495,35 @@ namespace Ochrona_Danych_Stenografia
             }
             textBox3.Text += "\r\nlboffset: " + lbMarker.ToString();
             // chart
-            chart1.Series["Capacity proportion"].Points.Clear();
-            chart1.Series["Capacity proportion"].Points.AddXY("Used ", usedSpace);
-            chart1.Series["Capacity proportion"].Points.AddXY("Free ", freeSpace);
+            //LiveCharts.Definitions.Series.IPieSeries pieSeries;
+            //Chart1.Series[0].Values = 
+            Func<ChartPoint, string> labelPoint = chartPoint =>
+               string.Format("{0} ({1:P})", chartPoint.Y, chartPoint.Participation);
+
+            if (Chart1.Series.Count != 0)
+            {
+                Chart1.Series.Clear();
+            }
+            Chart1.Series = new SeriesCollection
+            {
+            new PieSeries
+            {
+                Title = "Used",
+                Values = new ChartValues<double> {usedSpace},
+                PushOut = 5,
+                DataLabels = true,
+                LabelPoint = labelPoint
+            },
+            new PieSeries
+            {
+                Title = "Free",
+                Values = new ChartValues<double> {freeSpace},
+                DataLabels = true,
+                LabelPoint = labelPoint
+            },
+        };
+
+            Chart1.LegendLocation = LegendLocation.Bottom;
 
             textBox3.Text = "\rWidth:" + dSize[0].ToString() + ",Height:" + dSize[1].ToString();
             textBox3.Text += "\r\nBMP Size: " + dest.Length.ToString();
@@ -510,7 +538,6 @@ namespace Ochrona_Danych_Stenografia
             if (cB1.Checked)
             {
                 EXTRACTED = false;
-                //src = null;
                 textBox4.Text=savePath = "";
                 label2.Visible = false;
                 textBox2.Visible = false;
