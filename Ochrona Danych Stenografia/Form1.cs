@@ -24,7 +24,7 @@ namespace Ochrona_Danych_Stenografia
         LiveCharts.WinForms.PieChart Chart1;
         //Destanation used image
 
-        byte[] dest;
+        byte[] dest, dBackup;
         string destPath = "";
         int[] dSize = new int[2];   //  width, height
         int cPaddingB = 0;  //  count of  padding bytes per row
@@ -281,6 +281,9 @@ namespace Ochrona_Danych_Stenografia
         public void Extract()
         {
             //  vars
+            //if(src != null) Array.Clear(src, 0, src.Length);
+            //src = null;
+
             src = new byte[dest.Length];
             for( int i=0;i< src.Length;i++)
             {
@@ -342,12 +345,15 @@ namespace Ochrona_Danych_Stenografia
 
             EXTRACTED = true;
             extr = new byte[sOffset];
+            src[sOffset] = (byte)'\0';
             for(int i=0;i<sOffset;i++)
             {
                 extr[i] = new byte();
             }
             System.Buffer.BlockCopy(src, 0, extr, 0, sOffset);
-            //src = null;
+            //Array.Clear()
+            src = new byte[0];
+            textBox2.Text= srcPath = "";
         }
         //  *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
 
@@ -569,6 +575,13 @@ namespace Ochrona_Danych_Stenografia
 
         private void bt3_Click(object sender, EventArgs e)
         {
+            using (var mms = new MemoryStream(dBackup))
+            {
+                dest = null;
+                dest = ReadFully(mms);
+            }
+            pictureBox2.Image = pictureBox1.Image;
+            pictureBox2.Refresh();
             //  can put timer here
             Stow();
             STOWED = true;
@@ -613,6 +626,8 @@ namespace Ochrona_Danych_Stenografia
         //  Button to select dest BMP
         private void bt1_Click(object sender, EventArgs e)
         {
+            if (dest != null) Array.Clear(dest, 0, dest.Length);
+
             Stream ms = null;
             bt3.Enabled = false;
             bt2.Enabled = false;
@@ -629,7 +644,11 @@ namespace Ochrona_Danych_Stenografia
                     {
                         using (ms)
                         {
+                            if (dest != null) Array.Clear(dest, 0, dest.Length);
+
                             dest = ReadFully(ms);
+                            ms.Seek(0, SeekOrigin.Begin);
+                            dBackup = ReadFully(ms);
                         }
                     }
                 }
@@ -666,6 +685,7 @@ namespace Ochrona_Danych_Stenografia
             {
                 SFD.Filter = "All files(*.*) |*.*";
                 Extract();
+                button3.Enabled = true;
             }
             if( destPath != "")
             {
