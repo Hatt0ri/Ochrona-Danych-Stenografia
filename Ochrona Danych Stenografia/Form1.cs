@@ -284,11 +284,6 @@ namespace Ochrona_Danych_Stenografia
             //if(src != null) Array.Clear(src, 0, src.Length);
             //src = null;
 
-            src = new byte[dest.Length];
-            for( int i=0;i< src.Length;i++)
-            {
-                src[i] = new byte();
-            }
             int cType = 0;   //  0-R, 1-G, 2-B
             int clo = lcR;    //  color iterator
             //int colorSum = cR + cG + cB;
@@ -296,6 +291,8 @@ namespace Ochrona_Danych_Stenografia
             int sOffset = 0;
             Queue<int> cont = new Queue<int>(8);
             int[] dBits = new int[8];
+            //  list 4 test
+            List<byte> lFinal = new List<byte>(dest.Length);
 
             bool kon = true;    //  var hold loop or drop it
 
@@ -331,7 +328,9 @@ namespace Ochrona_Danych_Stenografia
                             {
                                 dBits[a] = cont.Dequeue();
                             }
-                            src[sOffset++] = Crr.GetByte(dBits);
+                            //src[sOffset++] = Crr.GetByte(dBits);
+                            sOffset++;
+                            lFinal.Add(Crr.GetByte(dBits));
                         }
                         
  
@@ -345,14 +344,14 @@ namespace Ochrona_Danych_Stenografia
 
             EXTRACTED = true;
             extr = new byte[sOffset];
-            src[sOffset] = (byte)'\0';
-            for(int i=0;i<sOffset;i++)
+            /*for(int i=0;i<sOffset;i++)
             {
                 extr[i] = new byte();
-            }
-            System.Buffer.BlockCopy(src, 0, extr, 0, sOffset);
-            //Array.Clear()
-            src = new byte[0];
+            }*/
+            System.Buffer.BlockCopy(lFinal.ToArray(), 0, extr, 0, sOffset);
+            lFinal.Clear();
+            //Array.Copy(src, extr, sOffset);
+            //src = new byte[0];
             textBox2.Text= srcPath = "";
         }
         //  *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
