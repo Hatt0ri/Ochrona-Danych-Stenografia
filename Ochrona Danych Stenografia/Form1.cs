@@ -625,6 +625,7 @@ namespace Ochrona_Danych_Stenografia
         //  Button to select dest BMP
         private void bt1_Click(object sender, EventArgs e)
         {
+
             if (dest != null) Array.Clear(dest, 0, dest.Length);
 
             Stream ms = null;
@@ -636,7 +637,7 @@ namespace Ochrona_Danych_Stenografia
             if (OFD.ShowDialog() == DialogResult.OK)
             {
                 destPath= textBox1.Text = OFD.FileName;
-
+                
                 try
                 {
                     if ((ms = OFD.OpenFile()) != null)
@@ -658,6 +659,20 @@ namespace Ochrona_Danych_Stenografia
 
                 ms.Dispose();
                 ms.Close();
+                if (cB1.Checked == true)
+                {
+                    if (destPath != "")
+                    {
+                        if (ReadMarker())
+                        {
+                            textBox3.Text = "File has hidden data to extract!\r\nChoose path to save the file and click 'Save'!";
+                        }
+                        else
+                        {
+                            textBox3.Text = "No marker found. File has no data to extract!";
+                        }
+                    }
+                }
 
                 dSize = GetImgSize(dest,out cPaddingB);
                 
