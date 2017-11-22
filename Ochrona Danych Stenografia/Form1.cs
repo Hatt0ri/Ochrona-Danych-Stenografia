@@ -414,11 +414,13 @@ namespace Ochrona_Danych_Stenografia
             }
             //  % sdfsdfsdfsdf
             tmp = sLen * (int)Math.Ceiling((double)(24 / (cR + cG + cB)));
-            usedSpace = tmp + bmpMBsize;
-            tmp = dSize[0] * dSize[1] * 3;
+            usedSpace = tmp + bmpMBsize + 54;
+            //tmp = dSize[0] * dSize[1] * 3;
+            tmp = dest.Length - 54 - (sLen / (dSize[0] * 3)) * cPaddingB;
             freeSpace = tmp - usedSpace;
             percUsed = 100 * usedSpace / tmp;
             percFree = 100 - percUsed;
+
 
             if(freeSpace < 0) {
                 MessageBox.Show("Picked file to hide is to huge! Try to pick larger carrier image or move trackbars.", "File to large!", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -532,7 +534,7 @@ namespace Ochrona_Danych_Stenografia
 
             textBox3.Text = "\rWidth:" + dSize[0].ToString() + ",Height:" + dSize[1].ToString();
             textBox3.Text += "\r\nBMP Size: " + dest.Length.ToString();
-            textBox3.Text += "\r\nCapacity: " + (dSize[0] * dSize[1]*3).ToString();
+            textBox3.Text += "\r\nCapacity: " + (dest.Length - 54 - (sLen / (dSize[0] * 3)) * cPaddingB).ToString();
             textBox3.Text += "\r\nFile Size: " + sLen.ToString();
             textBox3.Text += "\r\nUsed: " + percUsed.ToString() + " %" + " , " + usedSpace.ToString();
             textBox3.Text += "\r\nFree: " + percFree.ToString() + " %" + " , " + freeSpace.ToString();
