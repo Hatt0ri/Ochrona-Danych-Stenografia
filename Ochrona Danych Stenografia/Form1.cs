@@ -84,11 +84,11 @@ namespace Ochrona_Danych_Stenografia
             lastByteSize = bb >> 4;
             //lbMarker = (int)dest[MBOffset + 3];
 
-            /*byte[] tmp = { dest[MBOffset + 3], dest[MBOffset + 4], dest[MBOffset + 5], dest[MBOffset +6] };
+            byte[] tmp = { dest[MBOffset + 3], dest[MBOffset + 4], dest[MBOffset + 5], dest[MBOffset +6] };
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(tmp);
 
-            llB= lbMarker = BitConverter.ToInt32(tmp, 0);*/
+            llB= lbMarker = BitConverter.ToInt32(tmp, 0);
 
             return true;
         }
@@ -278,11 +278,6 @@ namespace Ochrona_Danych_Stenografia
 
         public void Extract()
         {
-            byte[] tmp = { dest[MBOffset + 3], dest[MBOffset + 4], dest[MBOffset + 5], dest[MBOffset + 6] };
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(tmp);
-
-            llB = lbMarker = BitConverter.ToInt32(tmp, 0);
 
             int cType = 0;   //  0-R, 1-G, 2-B
             int clo = lcR;    //  color iterator
@@ -344,15 +339,13 @@ namespace Ochrona_Danych_Stenografia
 
             EXTRACTED = true;
             extr = new byte[sOffset];
-            /*for(int i=0;i<sOffset;i++)
+            for(int i=0;i<sOffset;i++)
             {
                 extr[i] = new byte();
-            }*/
+            }
+            //extr = lFinal.ToArray();
             System.Buffer.BlockCopy(lFinal.ToArray(), 0, extr, 0, sOffset);
             lFinal.Clear();
-            //Array.Copy(src, extr, sOffset);
-            //src = new byte[0];
-            textBox2.Text= srcPath = "";
         }
         //  *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
 
@@ -366,9 +359,10 @@ namespace Ochrona_Danych_Stenografia
         }
 
 
-        public static int[] GetImgSize( byte[] des, out int padd )   //  ( int )Width, Height
+        //public static int[] GetImgSize( byte[] des, out int padd )   //   it's out of use, bitmap class used instead
+        public void GetImgSize(byte[] des)   //  ( int )Width, Height
         {
-            if( des.Length <= 54)
+            /*if( des.Length <= 54)
             {
                 padd = 0;
                 return null;
@@ -386,7 +380,7 @@ namespace Ochrona_Danych_Stenografia
             }
 
             padd = (arr[0] * 3) % 4;
-            return arr;
+            return arr;*/
         }
 
 
@@ -416,7 +410,7 @@ namespace Ochrona_Danych_Stenografia
             tmp = sLen * (int)Math.Ceiling((double)(24 / (cR + cG + cB)));
             usedSpace = tmp + bmpMBsize + 54;
             //tmp = dSize[0] * dSize[1] * 3;
-            tmp = dest.Length - 54 - (sLen / (dSize[0] * 3)) * cPaddingB;
+            tmp = dest.Length - (sLen / (dSize[0] * 3)) * cPaddingB;
             freeSpace = tmp - usedSpace;
             percUsed = 100 * usedSpace / tmp;
             percFree = 100 - percUsed;
@@ -672,8 +666,6 @@ namespace Ochrona_Danych_Stenografia
                             textBox3.Text = "No marker found. File has no data to extract!";
                         }
                 }
-
-                dSize = GetImgSize(dest,out cPaddingB);
                 
                 bt2.Enabled = true;
 
@@ -683,6 +675,7 @@ namespace Ochrona_Danych_Stenografia
                 }
                 
                 pictureBox1.Refresh();
+                //dSize = GetImgSize(dest,out cPaddingB);   //  out of use
                 dSize[0] = pictureBox1.Image.Width;
                 dSize[1] = pictureBox1.Image.Height;
                 cPaddingB = (dSize[0] * 3) % 4;
