@@ -54,7 +54,7 @@ namespace Ochrona_Danych_Stenografia
 
         //  Extracted file vars
         //  1 byte4marker, 2 bytes4 RGBsliders and lastbyteSize, 4 bytes4 last byteOFFset
-        int lcR, lcG, lcB;
+        int lcR, lcG, lcB, llB = 0;
 
         //lastNyteSize
         //lbMarker
@@ -84,11 +84,11 @@ namespace Ochrona_Danych_Stenografia
             lastByteSize = bb >> 4;
             //lbMarker = (int)dest[MBOffset + 3];
 
-            byte[] tmp = { dest[MBOffset + 3], dest[MBOffset + 4], dest[MBOffset + 5], dest[MBOffset +6] };
+            /*byte[] tmp = { dest[MBOffset + 3], dest[MBOffset + 4], dest[MBOffset + 5], dest[MBOffset +6] };
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(tmp);
 
-            lbMarker = BitConverter.ToInt32(tmp, 0);
+            llB= lbMarker = BitConverter.ToInt32(tmp, 0);*/
 
             return true;
         }
@@ -264,14 +264,12 @@ namespace Ochrona_Danych_Stenografia
             GetColorValues();
 
             //  code 4 img preview
-            Bitmap bmp;
-            using (var ms = new MemoryStream(dest))
+            using (Stream ms = new MemoryStream(dest))
             {
-                bmp = new Bitmap(ms);
+                pictureBox2.Image = new Bitmap(ms);
             }
-            pictureBox2.Image = bmp;
+            //pictureBox2.Image = bmp;
             pictureBox2.Refresh();
-            //bmp.Dispose();
             label4.Text += ", "+lbMarker.ToString();
 
 
@@ -280,9 +278,11 @@ namespace Ochrona_Danych_Stenografia
 
         public void Extract()
         {
-            //  vars
-            //if(src != null) Array.Clear(src, 0, src.Length);
-            //src = null;
+            byte[] tmp = { dest[MBOffset + 3], dest[MBOffset + 4], dest[MBOffset + 5], dest[MBOffset + 6] };
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(tmp);
+
+            llB = lbMarker = BitConverter.ToInt32(tmp, 0);
 
             int cType = 0;   //  0-R, 1-G, 2-B
             int clo = lcR;    //  color iterator
@@ -305,7 +305,7 @@ namespace Ochrona_Danych_Stenografia
                     for (int ib = 0; ib < 3; ib++)                             //  4   every byte
                     {
                         //=======================
-                        if (lbMarker== dOffset) //  if last byte to read
+                        if (llB== dOffset) //  if last byte to read
                         {
                             if( lastByteSize!=0)
                             {
@@ -663,8 +663,6 @@ namespace Ochrona_Danych_Stenografia
                 ms.Close();
                 if (cB1.Checked == true)
                 {
-                    if (destPath != "")
-                    {
                         if (ReadMarker())
                         {
                             textBox3.Text = "File has hidden data to extract!\r\nChoose path to save the file and click 'Save'!";
@@ -673,20 +671,21 @@ namespace Ochrona_Danych_Stenografia
                         {
                             textBox3.Text = "No marker found. File has no data to extract!";
                         }
-                    }
                 }
 
                 dSize = GetImgSize(dest,out cPaddingB);
                 
                 bt2.Enabled = true;
 
-                Bitmap bmp;
                 using (var mms = new MemoryStream(dest))
                 {
-                    bmp = new Bitmap(mms);
+                    pictureBox1.Image = new Bitmap(mms);
                 }
-                pictureBox1.Image = bmp;
+                
                 pictureBox1.Refresh();
+                dSize[0] = pictureBox1.Image.Width;
+                dSize[1] = pictureBox1.Image.Height;
+                cPaddingB = (dSize[0] * 3) % 4;
             }
         }
 
