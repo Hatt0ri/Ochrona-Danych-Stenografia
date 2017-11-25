@@ -287,7 +287,7 @@ namespace Ochrona_Danych_Stenografia
             Queue<int> cont = new Queue<int>(8);
             int[] dBits = new int[8];
             //  list 4 test
-            List<byte> lFinal = new List<byte>(dest.Length);
+            List<byte> lFinal = new List<byte>(dest.Count());
 
             bool kon = true;    //  var hold loop or drop it
 
@@ -339,10 +339,10 @@ namespace Ochrona_Danych_Stenografia
 
             EXTRACTED = true;
             extr = new byte[sOffset];
-            for(int i=0;i<sOffset;i++)
+            /*for(int i=0;i<sOffset;i++)
             {
                 extr[i] = new byte();
-            }
+            }*/
             //extr = lFinal.ToArray();
             System.Buffer.BlockCopy(lFinal.ToArray(), 0, extr, 0, sOffset);
             lFinal.Clear();
@@ -384,7 +384,7 @@ namespace Ochrona_Danych_Stenografia
         }
 
 
-        public bool CheckSpace()    //  Free space to encode
+        private bool CheckSpace()    //  Free space to encode
         {
             pictureBox2.Image = null;
             if (destPath == "" || srcPath == "")
@@ -393,12 +393,29 @@ namespace Ochrona_Danych_Stenografia
                 return false;   
             }
             GetColorValues();
+            int cType = 0, clo = 0, loadedBits = 0;
+            bool kon = true;
 
-            //int tmp = sLen * (int)Math.Ceiling(((double)24 / (cR + cG + cB))) + 54 + bmpMBsize;    //  offsetformula
-            //int tmp = (int)Math.Ceiling((double)sLen * (24 / (double)(cR + cG + cB)));    //  offsetformula
-            int tmp = sLen * (int)Math.Ceiling((double)(24 / (cR + cG + cB)));
+            int codedBytes = 0;
+            for (int row = 1; row <= dSize[1]; row++)                             //4 evry row
+            {
+                for (int p = 0; p < dSize[0]; p++)                                  //4 every pixel 3b
+                {
+                    for (int ib = 0; ib < 3; ib++)                             //  4   every byte
+                    {
+                        //loadedBits
+                        if (!kon) { break; }
+                        IncColor(ref cType, ref clo);   //  increment color
+                        //if
+                        codedBytes++;
+                    }
+                }
+            }
+
+            int tmp = sLen * (int)Math.Ceiling((double)((8/cR + 8/cG + 8/cB) / 3));
             tmp += 54 + bmpMBsize + (sLen / (dSize[0] * 3)) * cPaddingB;
             lbMarker = tmp;
+            label4.Text = codedBytes.ToString();
 
             
             if( dest.Length <= tmp || sLen > dest.Length)
@@ -406,8 +423,8 @@ namespace Ochrona_Danych_Stenografia
                 MessageBox.Show("Picked file to hide is to huge! Try to pick larger carrier image or move trackbars.", "File to large!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-            //  % sdfsdfsdfsdf
-            tmp = sLen * (int)Math.Ceiling((double)(24 / (cR + cG + cB)));
+            //tmp = sLen * (int)Math.Ceiling((double)(24 / (cR + cG + cB)));
+            tmp = sLen * (int)Math.Ceiling((double)((8/cR + 8/cG + 8/cB) / 3));
             usedSpace = tmp + bmpMBsize + 54;
             //tmp = dSize[0] * dSize[1] * 3;
             tmp = dest.Length - (sLen / (dSize[0] * 3)) * cPaddingB;
@@ -480,7 +497,6 @@ namespace Ochrona_Danych_Stenografia
 
                 button2.PerformClick();
 
-
             }
         }
 
@@ -539,6 +555,7 @@ namespace Ochrona_Danych_Stenografia
             if (cB1.Checked)
             {
                 EXTRACTED = false;
+                button3.Enabled = false;
                 textBox4.Text=savePath = "";
                 label2.Visible = false;
                 textBox2.Visible = false;
@@ -546,11 +563,13 @@ namespace Ochrona_Danych_Stenografia
                 bt3.Visible = false;
                 this.MaximumSize = new Size(382, 341);  //  Start size
 
-                if (destPath != "")
+                if (destPath != "" && !STOWED)
                 {
                     if (ReadMarker())
                     {
                         textBox3.Text = "File has hidden data to extract!\r\nChoose path to save the file and click 'Save'!";
+                        Extract();
+                        button3.Enabled = true;
                     }
                     else
                     {
@@ -568,7 +587,7 @@ namespace Ochrona_Danych_Stenografia
             }
         }
 
-        private void bt3_Click(object sender, EventArgs e)
+        private void bt3_Click(object sender, EventArgs e)  //  STOW
         {
             using (var mms = new MemoryStream(dBackup))
             {
@@ -583,7 +602,7 @@ namespace Ochrona_Danych_Stenografia
             button3.Enabled = true;
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e)  //  SAVE
         {
             if (savePath=="")
             {
@@ -627,6 +646,7 @@ namespace Ochrona_Danych_Stenografia
             Stream ms = null;
             bt3.Enabled = false;
             bt2.Enabled = false;
+            button3.Enabled = false;
             this.MaximumSize = new Size(382, 341);  //  Start size
 
             OFD.Filter= "BMP files(*.bmp) |*.bmp";
@@ -655,16 +675,18 @@ namespace Ochrona_Danych_Stenografia
 
                 ms.Dispose();
                 ms.Close();
-                if (cB1.Checked == true)
+                if (cB1.Checked == true && !STOWED)
                 {
-                        if (ReadMarker())
-                        {
-                            textBox3.Text = "File has hidden data to extract!\r\nChoose path to save the file and click 'Save'!";
-                        }
-                        else
-                        {
-                            textBox3.Text = "No marker found. File has no data to extract!";
-                        }
+                    if (ReadMarker())
+                    {
+                        textBox3.Text = "File has hidden data to extract!\r\nChoose path to save the file and click 'Save'!";
+                        Extract();
+                        button3.Enabled = true;
+                    }
+                    else
+                    {
+                        textBox3.Text = "No marker found. File has no data to extract!";
+                    }
                 }
                 
                 bt2.Enabled = true;
@@ -679,6 +701,7 @@ namespace Ochrona_Danych_Stenografia
                 dSize[0] = pictureBox1.Image.Width;
                 dSize[1] = pictureBox1.Image.Height;
                 cPaddingB = (dSize[0] * 3) % 4;
+                STOWED = false;
             }
         }
 
@@ -692,7 +715,7 @@ namespace Ochrona_Danych_Stenografia
             else
             {
                 SFD.Filter = "All files(*.*) |*.*";
-                Extract();
+                //Extract();
                 button3.Enabled = true;
             }
             if( destPath != "")
