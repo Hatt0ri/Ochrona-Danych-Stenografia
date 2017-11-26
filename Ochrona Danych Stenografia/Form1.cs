@@ -264,8 +264,9 @@ namespace Ochrona_Danych_Stenografia
             GetColorValues();
 
             //  code 4 img preview
-            using (Stream ms = new MemoryStream(dest))
+            using (MemoryStream ms = new MemoryStream(dest))
             {
+                // trza zrobic jakies zmniejszanie bmp
                 pictureBox2.Image = new Bitmap(ms);
             }
             //pictureBox2.Image = bmp;
@@ -393,7 +394,7 @@ namespace Ochrona_Danych_Stenografia
                 return false;   
             }
             GetColorValues();
-            int cType = 0, clo = 0, loadedBits = 0;
+           /* int cType = 0, clo = 0, loadedBits = 0;
             bool kon = true;
 
             int codedBytes = 0;
@@ -410,12 +411,12 @@ namespace Ochrona_Danych_Stenografia
                         codedBytes++;
                     }
                 }
-            }
+            }*/
 
             int tmp = sLen * (int)Math.Ceiling((double)((8/cR + 8/cG + 8/cB) / 3));
             tmp += 54 + bmpMBsize + (sLen / (dSize[0] * 3)) * cPaddingB;
             lbMarker = tmp;
-            label4.Text = codedBytes.ToString();
+            label4.Text = lbMarker.ToString();
 
             
             if( dest.Length <= tmp || sLen > dest.Length)
@@ -594,8 +595,6 @@ namespace Ochrona_Danych_Stenografia
                 dest = null;
                 dest = ReadFully(mms);
             }
-            pictureBox2.Image = pictureBox1.Image;
-            pictureBox2.Refresh();
             //  can put timer here
             Stow();
             STOWED = true;
