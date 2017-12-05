@@ -692,14 +692,15 @@ namespace Ochrona_Danych_Stenografia
 
                 using (var mms = new MemoryStream(dest))
                 {
-                    pictureBox1.Image = new Bitmap(mms);
+                    pictureBox1.Image = new Bitmap(mms);        //  dziwny wyjatek :o
                 }
                 
+
                 pictureBox1.Refresh();
                 //dSize = GetImgSize(dest,out cPaddingB);   //  out of use
                 dSize[0] = pictureBox1.Image.Width;
                 dSize[1] = pictureBox1.Image.Height;
-                cPaddingB = (dSize[0] * 3) % 4;
+                cPaddingB = (dSize[0] * 3) % 4;  
                 STOWED = false;
             }
         }
